@@ -11,6 +11,7 @@ import senshiHandler               from "./providers/senshi.js";
 import kaaHandler                  from "./providers/kickassanime.js";
 import animedunyaHandler           from "./providers/animedunya.js";
 import animeonsenHandler           from "./providers/animeonsen.js";
+import anipmHandler                from "./providers/anipm.js";
 import { guardRequest }              from "./appGuard.js";
 import { getEpisodesResponse, getFilteredEpisodesResponse } from "./core/episode-cache.js";
 import { resolveProviders }         from "./core/episode-strategy.js";
@@ -248,6 +249,16 @@ export default {
       );
     }
 
+    // Ani.pm episodes were listed but this route was missing, so every Ani.pm server was a 404
+    m = path.match(/^\/watch\/anipm\/(\d+)\/(sub|dub)\/anipm-(\d+)\/?$/);
+    if (m) {
+      const [, id, audio, ep] = m;
+      return cachedWatch(
+        `watch:anipm:${id}:${audio}:${ep}`,
+        () => anipmHandler.fetch(request)
+      );
+    }
+
 
     return json({
       name: "Anivexa API 2.2.1",
@@ -264,6 +275,7 @@ export default {
         "kaa",
         "animedunya",
         "animeonsen",
+        "anipm",
       ],
       routes: [
         "/map/:anilistId",
@@ -281,6 +293,7 @@ export default {
         "/watch/kaa/:id/sub|dub/kaa-:ep",
         "/watch/animedunya/:id/sub|dub/animedunya-:ep",
         "/watch/animeonsen/:id/sub|dub/animeonsen-:ep",
+        "/watch/anipm/:id/sub|dub/anipm-:ep",
       ],
     });
   },
